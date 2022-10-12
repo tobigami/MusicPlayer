@@ -11,6 +11,7 @@
  * 10. Play song when click
  */
 
+const PLAYER_STORAGE_KEY = 'Music-Player'
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
 const heading = $('header h2')
@@ -31,6 +32,11 @@ const app = {
   isRepeat: false,
   isPlaying: false,
   isRandom: false,
+  config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
+  setConfig: function (key, value) {
+    this.config[key] = value
+    localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.config))
+  },
   songs: [
     {
       name: 'Enemy',
@@ -80,7 +86,6 @@ const app = {
       path: 'https://data.chiasenhac.com/down2/2270/2/2269173-465faf9b/128/Ben%20Tren%20Tang%20Lau%20House%20Remix_%20-%20Tang%20Du.mp3',
       image: 'https://data.chiasenhac.com/data/cover/172/171912.jpg'
     }
-
   ],
   // Render songs (DOM event)
   render: function () {
@@ -192,6 +197,7 @@ const app = {
     }
     // chuc nang phat nhac random
     randomBtn.onclick = function (e) {
+      that.setConfig('isRandom', !that.isRandom)
       that.isRandom = !that.isRandom
       randomBtn.classList.toggle('active', that.isRandom)
     }
@@ -206,6 +212,7 @@ const app = {
     }
     // repeat bai hat
     repeatBtn.onclick = function () {
+      that.setConfig('isRepeat', !that.isRepeat)
       that.isRepeat = !that.isRepeat
       repeatBtn.classList.toggle('active', that.isRepeat)
     }
@@ -268,9 +275,16 @@ const app = {
     heading.textContent = this.currentSong.name
     cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
     audio.src = this.currentSong.path
+  },
 
+  loadConfig: function () {
+    this.isRandom = this.config.isRandom
+    this.isRepeat = this.config.isRepeat
   },
   start: function () {
+    // load config
+    this.loadConfig()
+
     // new properties
     this.defineProperties()
 
@@ -282,6 +296,10 @@ const app = {
 
     // render list song 
     this.render()
+
+    // hien thi trang thai cua random va repeat
+    randomBtn.classList.toggle('active', this.isRandom)
+    repeatBtn.classList.toggle('active', this.isRepeat)
 
   }
 
