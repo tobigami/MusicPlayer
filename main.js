@@ -1,12 +1,12 @@
 /**
- * 1. Render Song -> oke
- * 2. Scroll top -> oke
- * 3. Play, pause, seek -> oke
- * 4. CD rotate -> oke
- * 5. Next / prev -> oke
- * 6. Random -> oke
- * 7. Next / Repeat when ended -> oke
- * 8. Active song -> oke
+ * 1. Render Song
+ * 2. Scroll top
+ * 3. Play, pause, seek
+ * 4. CD rotate
+ * 5. Next / prev
+ * 6. Random
+ * 7. Next / Repeat when ended
+ * 8. Active song
  * 9. Scroll active song into view 
  * 10. Play song when click
  */
@@ -14,195 +14,197 @@
 const PLAYER_STORAGE_KEY = 'Music-Player'
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
-const heading = $('header h2')
+const playList = $('.playlist')
+const cd = $('.cd')
+const h2 = $('header h2')
 const cdThumb = $('.cd-thumb')
 const audio = $('#audio')
-const cd = $('.cd')
-const playBtn = $('.btn-toggle-play')
 const player = $('.player')
-const process = $('#progress')
+const playBtn = $('.btn-toggle-play')
+const progress = $('.progress')
 const nextBtn = $('.btn-next')
-const prevBtn = $('.btn-prev')
+const preBtn = $('.btn-prev')
 const randomBtn = $('.btn-random')
 const repeatBtn = $('.btn-repeat')
-const playList = $('.playlist')
+
+
 
 const app = {
-  currentIndex: 0,
-  isRepeat: false,
   isPlaying: false,
   isRandom: false,
-  config: JSON.parse(localStorage.getItem(PLAYER_STORAGE_KEY)) || {},
-  setConfig: function (key, value) {
-    this.config[key] = value
-    localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(this.config))
-  },
+  isRepeat: false,
+  currentIndex: 0,
   songs: [
     {
-      name: 'Enemy',
-      singer: 'Imagine Dragons; JID',
-      path: 'https://data25.chiasenhac.com/download2/2204/2/2203663-f258f539/128/Enemy%20-%20Imagine%20Dragons_%20JID.mp3',
-      image: 'https://data.chiasenhac.com/data/cover/150/149149.jpg'
+      name: 'Seeking Change',
+      singer: 'Yasumu',
+      path: './src/music/song3.mp3',
+      image: 'https://i.scdn.co/image/ab67616d00001e020a45e522ae21b0ad6f7d9120'
     },
     {
-      name: 'Prisoner',
-      singer: 'Miley Cyrus; Dua Lipa',
-      path: 'https://data17.chiasenhac.com/downloads/2153/2/2152008-22fa8023/32/Prisoner%20-%20Miley%20Cyrus_%20Dua%20Lipa.m4a',
-      image: 'https://data.chiasenhac.com/data/cover/136/135633.jpg'
+
+      name: 'Riverside',
+      singer: 'Slo Loris',
+      path: './src/music/song1.mp3',
+      image: 'https://f4.bcbits.com/img/a4281264070_10.jpg'
     },
     {
-      name: 'Bones',
-      singer: "Imagine Dragons",
-      path: 'https://data.chiasenhac.com/down2/2230/2/2229772-6cece5f8/128/Bones%20-%20Imagine%20Dragons.mp3',
-      image: 'https://data.chiasenhac.com/data/cover/158/157119.jpg'
+      name: 'The Broken Parts',
+      singer: 'Dimension 32',
+      path: './src/music/song2.mp3',
+      image: 'https://i.scdn.co/image/ab67616d00001e02b637b8d767b8ae9887f0dc52'
+    },
+
+    {
+      name: 'your colors',
+      singer: "Nvmb",
+      path: './src/music/song4.mp3',
+      image: 'https://i.scdn.co/image/ab67616d00001e02074d6d1e3f2320b11eb61dba'
     },
     {
-      name: 'Bang Bang',
-      singer: "Dua Lipa",
-      path: 'https://data00.chiasenhac.com/downloads/1839/2/1838543-26bce20f/128/Bang%20Bang%20-%20Dua%20Lipa.mp3',
-      image: 'https://data.chiasenhac.com/data/cover/79/78460.jpg'
+      name: 'Towards The Mountains',
+      singer: 'Plant Guy',
+      path: './src/music/song5.mp3',
+      image: 'https://f4.bcbits.com/img/a1824673371_16.jpg'
     },
     {
-      name: 'Sweetest Pie',
-      singer: 'Megan Thee Stallion; Dua Lipa',
-      path: 'https://data.chiasenhac.com/down2/2230/2/2229771-1b776d5d/128/Sweetest%20Pie%20-%20Megan%20Thee%20Stallion_%20Dua.mp3',
-      image: 'https://data.chiasenhac.com/data/cover/158/157118.jpg'
+      name: 'Nuit Douce',
+      singer: 'Phlocalyst x Myríad',
+      path: './src/music/song6.mp3',
+      image: 'https://i.scdn.co/image/ab67616d00001e02471defe38bdefc20d54d96a6'
     },
     {
-      name: 'Lost In Your Light',
-      singer: 'Dua Lipa',
-      path: 'https://data3.chiasenhac.com/downloads/1783/2/1782726-92d2dbcc/32/Lost%20In%20Your%20Light%20-%20Dua%20Lipa_%20Miguel.m4a',
-      image: 'https://data.chiasenhac.com/data/cover/71/70925.jpg'
+      name: 'Midnight blue',
+      singer: 'softy x Otis Ubaka',
+      path: './src/music/song7.mp3',
+      image: 'https://i.scdn.co/image/ab67616d00001e025bf7d67baf99ac6e986f8ecc'
     },
     {
-      name: 'No Lie',
-      singer: 'Dua Lipa',
-      path: 'https://data38.chiasenhac.com/downloads/1867/2/1866014-959dd19d/32/No%20Lie%20-%20Sean%20Paul_%20Dua%20Lipa.m4a',
-      image: 'https://data.chiasenhac.com/data/cover/83/82078.jpg'
-    },
-    {
-      name: 'Bên Trên Tầng Lầu',
-      singer: 'Tăng Duy Tân',
-      path: 'https://data.chiasenhac.com/down2/2270/2/2269173-465faf9b/128/Ben%20Tren%20Tang%20Lau%20House%20Remix_%20-%20Tang%20Du.mp3',
-      image: 'https://data.chiasenhac.com/data/cover/172/171912.jpg'
+      name: 'Stuck in Æther',
+      singer: 'Raimu',
+      path: './src/music/song8.mp3',
+      image: 'https://i.scdn.co/image/ab67616d00001e02036293f7436030635f167559'
     }
   ],
-  // Render songs (DOM event)
-  render: function () {
-    const htmls = this.songs.map((song, index) => {
-      return `
-      <div class="song ${index === this.currentIndex ? 'active' : ""}" data-index="${index}">
-          <div
-            class="thumb"
-            style="
-              background-image: url('${song.image}');
-            "
-          ></div>
-          <div class="body">
-            <h3 class="title">${song.name}</h3>
-            <p class="author">${song.singer}</p>
-          </div>
-          <div class="option">
-            <i class="fas fa-ellipsis-h"></i>
-          </div>
-        </div>
-      `
-    })
-    playList.innerHTML = htmls.join('');
-  },
-  // create new property get current song  for Object app
-  defineProperties: function () {
+  defineProperties() {
     Object.defineProperty(this, 'currentSong', {
       get: function () {
-        return this.songs[this.currentIndex];
+        return this.songs[this.currentIndex]
       }
     })
   },
-  handleEvents: function () {
-    const that = this
-    // xu ly hoat anh xoay cua cd
-    const cdThumbAnimate = cdThumb.animate(
-      [{ transform: 'rotate(360deg)' }], {
+  render() {
+    let x = this.songs.map((song, index) => {
+      return `<div class="song ${index === this.currentIndex ? 'active' : ''}" data-index = "${index}">
+      <div
+        class="thumb"
+        style="
+          background-image: url('${song.image}');
+        "
+      ></div>
+      <div class="body">
+        <h3 class="title">${song.name}</h3>
+        <p class="author">${song.singer}</p>
+      </div>
+      <div class="option">
+        <i class="fas fa-ellipsis-h"></i>
+      </div>
+    </div>
+  `}).join('')
+    playList.innerHTML = x
+  },
+  handleEvents() {
+
+    /** xoay cd */
+    const cdAnimate = cdThumb.animate([{
+      transform: 'rotate(360deg)'
+    }], {
       duration: 30000,
       iterations: Infinity
     })
-    cdThumbAnimate.pause()
-    // scroll top
-    const cdWidth = cd.offsetWidth;
+    cdAnimate.pause()
+
+
+    /** handle scroll top */
+    const that = this
+    const cdWidth = cd.offsetWidth
     document.onscroll = function () {
-      const scrolltop = document.documentElement.scrollTop || window.scrollY
-      const newCdWidth = cdWidth - scrolltop;
-      cd.style.width = newCdWidth > 0 ? newCdWidth + 'px' : 0;
-      cd.style.opacity = newCdWidth / cdWidth;
+      const newCdWidth = cdWidth - window.scrollY
+      cd.style.width = newCdWidth < 0 ? 0 : newCdWidth + 'px'
+      cd.style.opacity = newCdWidth / cdWidth
     }
-    // playing song
+
+    /** handle btn play and pause */
     playBtn.onclick = function () {
       if (that.isPlaying) {
         audio.pause()
       } else {
         audio.play()
       }
-
-      audio.onplay = function () {
-        that.isPlaying = true
-        player.classList.add('playing')
-        cdThumbAnimate.play()
-      }
-
-      audio.onpause = function () {
-        that.isPlaying = false
-        player.classList.remove('playing')
-        cdThumbAnimate.pause()
-      }
-
-      // xu ly nut process chay theo % bai hat
-      audio.ontimeupdate = function () {
-        if (audio.duration) {
-          const processPercen = Math.floor(audio.currentTime / audio.duration * 100);
-          process.value = processPercen
-        }
-      }
-      //  xu ly hanh dong tua bai hat
-      process.onchange = function (e) {
-        const seek = e.target.value / 100 * audio.duration
-        audio.currentTime = seek
-      }
-
     }
-    // next song
+
+    /** handle logic khi audio play and pause */
+    audio.onplay = function () {
+      cdAnimate.play()
+      that.isPlaying = true
+      player.classList.add('playing')
+    }
+
+    audio.onpause = function () {
+      cdAnimate.pause()
+      that.isPlaying = false
+      player.classList.remove('playing')
+    }
+
+    /** handle process bar  */
+    audio.ontimeupdate = function () {
+      if (audio.duration) {
+        progress.value = Math.floor(audio.currentTime / audio.duration * 100)
+      }
+    }
+
+    /** handle tua bai hat*/
+    progress.onchange = function (e) {
+      audio.currentTime = e.target.value / 100 * audio.duration
+    }
+
+    /** next song */
     nextBtn.onclick = function () {
       if (that.isRandom) {
-        that.playRandomSong()
+        that.randomSong()
       } else {
-        that.nextsong()
+        that.nextSong()
       }
-      playBtn.click()
       audio.play()
       that.render()
       that.scrollToActiveSong()
-      // console.log(that.currentIndex)
+
+    }
+    /** pre song */
+    preBtn.onclick = function () {
+      if (that.isRandom) {
+        that.randomSong()
+      } else {
+        that.preSong()
+      }
+      audio.play()
+      that.render()
+      that.scrollToActiveSong()
     }
 
-    prevBtn.onclick = function () {
-      if (that.isRandom) {
-        that.playRandomSong()
-      } else {
-        that.prevsong()
-      }
-      playBtn.click()
-      audio.play()
-      that.render()
-      that.scrollToActiveSong()
-      // console.log(that.currentIndex)
-    }
-    // chuc nang phat nhac random
-    randomBtn.onclick = function (e) {
-      that.setConfig('isRandom', !that.isRandom)
+    /** random song */
+    randomBtn.onclick = function () {
       that.isRandom = !that.isRandom
       randomBtn.classList.toggle('active', that.isRandom)
     }
 
-    // next bai khi ket thuc
+    /** repeat song */
+    repeatBtn.onclick = function () {
+      that.isRepeat = !that.isRepeat
+      repeatBtn.classList.toggle('active', that.isRepeat)
+    }
+
+    /** xu ly khi het bai hat */
     audio.onended = function () {
       if (that.isRepeat) {
         audio.play()
@@ -210,51 +212,26 @@ const app = {
         nextBtn.click()
       }
     }
-    // repeat bai hat
-    repeatBtn.onclick = function () {
-      that.setConfig('isRepeat', !that.isRepeat)
-      that.isRepeat = !that.isRepeat
-      repeatBtn.classList.toggle('active', that.isRepeat)
-    }
 
-    // listen hanh vi click vao playList 
+    /** xu ly chuyen bai khi click vào list */
     playList.onclick = function (e) {
-      const songOption = e.target.closest('.option')
       const songNode = e.target.closest('.song:not(.active)')
-      if (songNode || songOption) {
-        if (songNode && !songOption) {
+      console.log(songNode)
+      if (songNode || e.target.closest('.option')) {
+        if (songNode) {
           that.currentIndex = Number(songNode.dataset.index)
           that.loadCurrentSong()
           that.render()
-          playBtn.click()
           audio.play()
         }
-
-      }
-
-      function newFunction() {
-        console.log(songNode.datset.index)
+        if (e.target.closest('.option')) {
+          console.log('...')
+        }
       }
     }
   },
 
-  nextsong: function () {
-    this.currentIndex++
-    if (this.currentIndex >= this.songs.length) {
-      this.currentIndex = 0
-    }
-    this.loadCurrentSong()
-    // console.log(this.currentIndex, this.songs.length) show for debug
-  },
-  prevsong: function () {
-    this.currentIndex--
-    if (this.currentIndex < 0) {
-      this.currentIndex = this.songs.length - 1
-    }
-    this.loadCurrentSong()
-    // console.log(this.currentIndex, this.songs.length) show for debug
-  },
-  playRandomSong: function () {
+  randomSong() {
     let newIndex
     do {
       newIndex = Math.floor(Math.random() * this.songs.length)
@@ -263,45 +240,43 @@ const app = {
     this.loadCurrentSong()
   },
 
-  scrollToActiveSong: function () {
-    setTimeout(function () {
-      $('.song.active').scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      })
-    }, 50)
+  nextSong() {
+    this.currentIndex++
+    if (this.currentIndex > (this.songs.length - 1)) {
+      this.currentIndex = 0
+    }
+    this.loadCurrentSong()
   },
-  loadCurrentSong: function () {
-    heading.textContent = this.currentSong.name
+
+  preSong() {
+    this.currentIndex--
+    if (this.currentIndex < 0) {
+      this.currentIndex = this.songs.length - 1
+    }
+    this.loadCurrentSong()
+  },
+  loadCurrentSong() {
+    h2.innerText = this.currentSong.name
     cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`
     audio.src = this.currentSong.path
   },
+  scrollToActiveSong() {
+    setTimeout(() => {
 
-  loadConfig: function () {
-    this.isRandom = this.config.isRandom
-    this.isRepeat = this.config.isRepeat
+      $('.song.active').scrollIntoView({
+        block: 'start',
+        behavior: 'smooth'
+      })
+    }, 200)
+
   },
+
   start: function () {
-    // load config
-    this.loadConfig()
-
-    // new properties
     this.defineProperties()
-
-    // process behavior
-    this.handleEvents()
-
-    // loading current song
     this.loadCurrentSong()
-
-    // render list song 
+    this.handleEvents()
     this.render()
-
-    // hien thi trang thai cua random va repeat
-    randomBtn.classList.toggle('active', this.isRandom)
-    repeatBtn.classList.toggle('active', this.isRepeat)
-
   }
-
 }
-app.start();
+
+app.start()
